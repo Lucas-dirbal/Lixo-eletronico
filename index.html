@@ -975,6 +975,7 @@
           <h2 class="panel-title"><i data-lucide="gift"></i> Registrar doacao</h2>
         </div>
         <div class="panel-body">
+          <div class="empty hidden" id="donationEmpty"></div>
           <form class="form" id="donationForm">
             <label>
               De quem saiu
@@ -1115,6 +1116,7 @@
         search: document.querySelector("#search"),
         donationBtn: document.querySelector("#donationBtn"),
         donationForm: document.querySelector("#donationForm"),
+        donationEmpty: document.querySelector("#donationEmpty"),
         fromStudent: document.querySelector("#fromStudent"),
         toStudent: document.querySelector("#toStudent"),
         donationUnits: document.querySelector("#donationUnits"),
@@ -1428,6 +1430,14 @@
         els.toStudent.innerHTML = receivers
           .map((student) => `<option value="${student.id}">${student.name} (faltam ${totals(student).remaining})</option>`)
           .join("");
+
+        const hasReceiver = Boolean(receivers.length);
+        els.donationEmpty.classList.toggle("hidden", hasReceiver);
+        els.donationForm.classList.toggle("hidden", !hasReceiver);
+
+        if (!hasReceiver && donorTotal?.surplus) {
+          els.donationEmpty.textContent = `${donor.name}, seu excedente de ${donorTotal.surplus} unidade(s) ja esta registrado para doar quando algum colega precisar.`;
+        }
       }
 
       function render() {
@@ -1625,10 +1635,6 @@
           return;
         }
 
-        if (!els.fromStudent.options.length || !els.toStudent.options.length) {
-          showToast("Nao ha colega pendente para receber doacao.");
-          return;
-        }
         showScreen(els.donationScreen);
       });
 
