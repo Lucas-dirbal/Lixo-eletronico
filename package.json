@@ -3,11 +3,12 @@
   "version": "1.0.0",
   "description": "Controle de arrecadacao de lixo eletronico com SQLite.",
   "main": "server.js",
+  "type": "module",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "better-sqlite3": "^11.10.0",
+    "@libsql/client": "^0.17.3",
     "express": "^4.21.2"
   }
 }
