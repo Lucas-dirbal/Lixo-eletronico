@@ -5,7 +5,9 @@ import {
   addDonation,
   addEntry,
   getState,
+  loginUser,
   removeStudent,
+  registerUser,
   resetState,
   sendApiError,
 } from "./lib/db.js";
@@ -25,6 +27,22 @@ app.get("/", (_req, res) => {
 app.get("/api/state", async (_req, res) => {
   try {
     res.json(await getState());
+  } catch (error) {
+    sendApiError(res, error);
+  }
+});
+
+app.post("/api/auth/register", async (req, res) => {
+  try {
+    res.status(201).json({ user: await registerUser(req.body) });
+  } catch (error) {
+    sendApiError(res, error);
+  }
+});
+
+app.post("/api/auth/login", async (req, res) => {
+  try {
+    res.json({ user: await loginUser(req.body) });
   } catch (error) {
     sendApiError(res, error);
   }

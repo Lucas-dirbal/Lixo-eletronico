@@ -30,4 +30,6 @@ TURSO_DATABASE_URL
 TURSO_AUTH_TOKEN
 ```
 
+Essas variaveis sao obrigatorias para que cadastros, perfis, entregas e doacoes aparecam para todos os colegas. Sem um banco remoto, cada navegador fica isolado ou a Vercel pode perder dados ao reiniciar as funcoes.
+
 Depois disso, cada push para a branch `main` pode gerar um novo deploy pela integracao GitHub da Vercel.
