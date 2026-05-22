@@ -836,16 +836,6 @@
             <p class="subtitle">Desafio integrador ADS | Controle de 20 unidades por colega</p>
           </div>
         </div>
-        <div class="actions">
-          <button class="btn" id="exportBtn" type="button" title="Exportar dados">
-            <i data-lucide="download"></i>
-            Exportar
-          </button>
-          <button class="btn danger" id="resetBtn" type="button" title="Limpar dados">
-            <i data-lucide="trash-2"></i>
-            Limpar
-          </button>
-        </div>
       </header>
 
       <section class="hero" aria-label="Resumo da campanha">
@@ -1004,16 +994,6 @@
       </section>
     </section>
 
-    <dialog id="historyDialog">
-      <div class="modal-head">
-        <h2 class="panel-title" id="historyTitle"><i data-lucide="history"></i> Historico</h2>
-        <button class="btn icon" id="closeHistory" type="button" title="Fechar">
-          <i data-lucide="x"></i>
-        </button>
-      </div>
-      <div class="history" id="historyList"></div>
-    </dialog>
-
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script>
@@ -1137,9 +1117,6 @@
         fromStudent: document.querySelector("#fromStudent"),
         toStudent: document.querySelector("#toStudent"),
         donationUnits: document.querySelector("#donationUnits"),
-        historyDialog: document.querySelector("#historyDialog"),
-        historyTitle: document.querySelector("#historyTitle"),
-        historyList: document.querySelector("#historyList"),
         toast: document.querySelector("#toast"),
       };
 
@@ -1412,14 +1389,6 @@
                     <span>${total.donatedOut} doadas</span>
                   </div>
                 </div>
-                <div class="person-actions">
-                  <button class="btn icon" type="button" data-history="${student.id}" title="Historico">
-                    <i data-lucide="history"></i>
-                  </button>
-                  <button class="btn icon danger" type="button" data-remove="${student.id}" title="Remover">
-                    <i data-lucide="trash-2"></i>
-                  </button>
-                </div>
               </article>
             `;
           })
@@ -1594,65 +1563,6 @@
         });
       });
 
-      els.list.addEventListener("click", async (event) => {
-        const historyButton = event.target.closest("[data-history]");
-        const removeButton = event.target.closest("[data-remove]");
-
-        if (historyButton) {
-          openHistory(historyButton.dataset.history);
-        }
-
-        if (removeButton) {
-          const student = state.students.find((item) => item.id === removeButton.dataset.remove);
-          if (student && confirm(`Remover ${student.name} e todos os registros?`)) {
-            try {
-              state = await apiRequest(`/api/students/${student.id}`, { method: "DELETE" });
-            } catch (error) {
-              showToast(error.message);
-              return;
-            }
-            render();
-            showToast("Registro removido.");
-          }
-        }
-      });
-
-      function openHistory(studentId) {
-        const student = state.students.find((item) => item.id === studentId);
-        if (!student) return;
-
-        const rows = [
-          ...student.entries.map((entry) => ({
-            label: `${entry.categoryName}: ${entry.amount} item(ns)`,
-            meta: `${entry.date || "Sem data"} | +${entry.units} un.`,
-          })),
-          ...student.donationsIn.map((donation) => ({
-            label: `Recebeu de ${donation.fromName}`,
-            meta: `${donation.date} | +${donation.units} un.`,
-          })),
-          ...student.donationsOut.map((donation) => ({
-            label: `Doou para ${donation.toName}`,
-            meta: `${donation.date} | -${donation.units} un.`,
-          })),
-        ];
-
-        els.historyTitle.innerHTML = `<i data-lucide="history"></i> ${student.name}`;
-        els.historyList.innerHTML = rows.length
-          ? rows
-              .map(
-                (row) => `
-                  <div class="history-item">
-                    <span>${row.label}</span>
-                    <small>${row.meta}</small>
-                  </div>
-                `,
-              )
-              .join("")
-          : `<div class="empty">Sem historico.</div>`;
-        els.historyDialog.showModal();
-        lucide.createIcons();
-      }
-
       els.donationBtn.addEventListener("click", () => {
         renderDonationOptions();
         const donor = activeUser();
@@ -1680,8 +1590,6 @@
         }
         showScreen(els.donationScreen);
       });
-
-      document.querySelector("#closeHistory").addEventListener("click", () => els.historyDialog.close());
 
       els.donationForm.addEventListener("submit", async (event) => {
         event.preventDefault();
@@ -1717,41 +1625,6 @@
         render();
         showScreen(els.appScreen);
         showToast("Doacao registrada.");
-      });
-
-      document.querySelector("#exportBtn").addEventListener("click", () => {
-        const rows = state.students.map((student) => {
-          const total = totals(student);
-          return {
-            nome: student.name,
-            unidades: total.net,
-            arrecadadas: total.collected,
-            recebidas: total.donatedIn,
-            doadas: total.donatedOut,
-            faltam: total.remaining,
-            excedente: total.surplus,
-          };
-        });
-        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = "lixo-eletronico-turma.json";
-        link.click();
-        URL.revokeObjectURL(url);
-      });
-
-      document.querySelector("#resetBtn").addEventListener("click", async () => {
-        if (confirm("Limpar todos os registros da campanha?")) {
-          try {
-            state = await apiRequest("/api/reset", { method: "DELETE" });
-          } catch (error) {
-            showToast(error.message);
-            return;
-          }
-          render();
-          showToast("Dados limpos.");
-        }
       });
 
       renderRules();
