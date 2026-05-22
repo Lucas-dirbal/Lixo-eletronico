@@ -1,3 +1,5 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 import express from "express";
 import {
   addDonation,
@@ -10,9 +12,15 @@ import {
 
 const app = express();
 const port = process.env.PORT || 3000;
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const publicDir = __dirname;
 
 app.use(express.json());
-app.use(express.static("."));
+app.use(express.static(publicDir));
+
+app.get("/", (_req, res) => {
+  res.sendFile(path.join(publicDir, "index.html"));
+});
 
 app.get("/api/state", async (_req, res) => {
   try {
