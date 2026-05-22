@@ -546,6 +546,64 @@
         gap: 9px;
       }
 
+      .entry-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 12px;
+      }
+
+      .entry-card {
+        display: grid;
+        grid-template-rows: auto 1fr auto;
+        gap: 12px;
+        min-height: 250px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+        background: rgba(15, 25, 25, 0.72);
+      }
+
+      .entry-image {
+        display: grid;
+        place-items: center;
+        height: 96px;
+        border-radius: 8px;
+        color: #07130c;
+        background:
+          linear-gradient(135deg, rgba(141, 224, 90, 0.95), rgba(88, 183, 255, 0.68)),
+          #20c463;
+      }
+
+      .entry-image svg {
+        width: 54px;
+        height: 54px;
+        stroke-width: 1.7;
+      }
+
+      .entry-card h3 {
+        font-size: 1rem;
+      }
+
+      .entry-card p {
+        color: var(--muted);
+        font-size: 0.86rem;
+        line-height: 1.4;
+      }
+
+      .entry-card-foot {
+        display: grid;
+        gap: 9px;
+      }
+
+      .entry-units {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+
       .rule {
         display: grid;
         grid-template-columns: 34px minmax(0, 1fr) auto;
@@ -833,34 +891,16 @@
             <h2 class="panel-title"><i data-lucide="plus-circle"></i> Registrar entrega</h2>
           </div>
           <div class="panel-body">
-            <form class="form" id="entryForm">
+            <div class="form">
               <label>
                 Colega
-                <input id="studentName" name="studentName" type="text" autocomplete="name" placeholder="Digite seu nome acima" readonly required />
+                <input id="studentName" name="studentName" type="text" autocomplete="name" placeholder="Faca login primeiro" readonly required />
               </label>
-              <label>
-                Categoria
-                <select id="category" name="category" required></select>
-              </label>
-              <div class="inline">
-                <label>
-                  Quantidade
-                  <input id="amount" name="amount" type="number" min="1" step="1" value="1" required />
-                </label>
-                <label>
-                  Data
-                  <input id="date" name="date" type="date" required />
-                </label>
-              </div>
-              <div class="preview">
-                <span id="conversionText">Selecione uma categoria</span>
-                <strong><span id="unitPreview">1</span> un.</strong>
-              </div>
-              <button class="btn primary" type="submit">
-                <i data-lucide="save"></i>
-                Salvar entrega
+              <button class="btn primary" id="openEntryBtn" type="button">
+                <i data-lucide="clipboard-plus"></i>
+                Abrir registro de pecas
               </button>
-            </form>
+            </div>
           </div>
         </div>
 
@@ -895,6 +935,42 @@
         </div>
       </section>
     </main>
+
+    <section class="shell hidden" id="entryScreen">
+      <header class="topbar">
+        <div class="brand">
+          <div class="mark" aria-hidden="true"><i data-lucide="clipboard-plus"></i></div>
+          <div>
+            <h1>Registrar entrega</h1>
+            <p class="subtitle">Informe a quantidade de cada tipo de residuo que voce trouxe.</p>
+          </div>
+        </div>
+        <button class="btn" id="backToAppFromEntry" type="button"><i data-lucide="arrow-left"></i> Voltar</button>
+      </header>
+
+      <form class="panel" id="entryForm">
+        <div class="panel-head">
+          <h2 class="panel-title"><i data-lucide="boxes"></i> Pecas por categoria</h2>
+        </div>
+        <div class="panel-body">
+          <div class="inline" style="margin-bottom: 14px">
+            <label>
+              Colega
+              <input id="entryStudentName" type="text" readonly required />
+            </label>
+            <label>
+              Data
+              <input id="date" name="date" type="date" required />
+            </label>
+          </div>
+          <div class="entry-grid" id="entryItems"></div>
+          <button class="btn primary" style="margin-top: 14px; width: 100%" type="submit">
+            <i data-lucide="save"></i>
+            Salvar entrega
+          </button>
+        </div>
+      </form>
+    </section>
 
     <section class="shell hidden" id="donationScreen">
       <header class="topbar">
@@ -1032,6 +1108,7 @@
         registerScreen: document.querySelector("#registerScreen"),
         loginScreen: document.querySelector("#loginScreen"),
         appScreen: document.querySelector("#appScreen"),
+        entryScreen: document.querySelector("#entryScreen"),
         donationScreen: document.querySelector("#donationScreen"),
         registerForm: document.querySelector("#registerForm"),
         registerName: document.querySelector("#registerName"),
@@ -1043,17 +1120,17 @@
         goLogin: document.querySelector("#goLogin"),
         goRegister: document.querySelector("#goRegister"),
         logoutBtn: document.querySelector("#logoutBtn"),
+        openEntryBtn: document.querySelector("#openEntryBtn"),
+        backToAppFromEntry: document.querySelector("#backToAppFromEntry"),
         backToApp: document.querySelector("#backToApp"),
         currentUserForm: document.querySelector("#currentUserForm"),
         currentUserName: document.querySelector("#currentUserName"),
         currentUserStatus: document.querySelector("#currentUserStatus"),
         form: document.querySelector("#entryForm"),
         name: document.querySelector("#studentName"),
-        category: document.querySelector("#category"),
-        amount: document.querySelector("#amount"),
+        entryStudentName: document.querySelector("#entryStudentName"),
+        entryItems: document.querySelector("#entryItems"),
         date: document.querySelector("#date"),
-        preview: document.querySelector("#unitPreview"),
-        conversion: document.querySelector("#conversionText"),
         list: document.querySelector("#studentList"),
         rules: document.querySelector("#rulesList"),
         totalUnits: document.querySelector("#totalUnits"),
@@ -1074,6 +1151,7 @@
       els.date.valueAsDate = new Date();
       els.currentUserName.value = activeUserName;
       els.name.value = activeUserName;
+      els.entryStudentName.value = activeUserName;
 
       async function apiRequest(path, options = {}) {
         const response = await fetch(path, {
@@ -1108,7 +1186,7 @@
       }
 
       function showScreen(screen) {
-        [els.registerScreen, els.loginScreen, els.appScreen, els.donationScreen].forEach((item) => {
+        [els.registerScreen, els.loginScreen, els.appScreen, els.entryScreen, els.donationScreen].forEach((item) => {
           item.classList.toggle("hidden", item !== screen);
         });
         lucide.createIcons();
@@ -1183,7 +1261,9 @@
 
       function renderCurrentUser() {
         els.name.value = activeUserName;
+        els.entryStudentName.value = activeUserName;
         els.form.querySelector("button[type='submit']").disabled = !activeUserName;
+        els.openEntryBtn.disabled = !activeUserName;
 
         const user = activeUser();
         if (!activeUserName) {
@@ -1221,10 +1301,6 @@
       }
 
       function renderRules() {
-        els.category.innerHTML = rules
-          .map((rule) => `<option value="${rule.id}">${rule.name}</option>`)
-          .join("");
-
         els.rules.innerHTML = rules
           .map(
             (rule) => `
@@ -1241,11 +1317,39 @@
           .join("");
       }
 
-      function updatePreview() {
-        const rule = rules.find((item) => item.id === els.category.value) || rules[0];
-        const amount = Number(els.amount.value) || 0;
-        els.preview.textContent = unitsFor(rule, amount);
-        els.conversion.textContent = rule.ratio;
+      function renderEntryItems() {
+        els.entryItems.innerHTML = rules
+          .map(
+            (rule) => `
+              <article class="entry-card" data-entry-card="${rule.id}">
+                <div class="entry-image" aria-hidden="true"><i data-lucide="${rule.icon}"></i></div>
+                <div>
+                  <h3>${rule.name}</h3>
+                  <p>${rule.examples}</p>
+                </div>
+                <div class="entry-card-foot">
+                  <label>
+                    Quantidade
+                    <input data-entry-amount="${rule.id}" type="number" min="0" step="1" value="0" inputmode="numeric" />
+                  </label>
+                  <div class="entry-units">
+                    <span>${rule.ratio}</span>
+                    <strong data-entry-units="${rule.id}">0 un.</strong>
+                  </div>
+                </div>
+              </article>
+            `,
+          )
+          .join("");
+      }
+
+      function updateEntryPreviews() {
+        rules.forEach((rule) => {
+          const input = els.entryItems.querySelector(`[data-entry-amount="${rule.id}"]`);
+          const output = els.entryItems.querySelector(`[data-entry-units="${rule.id}"]`);
+          if (!input || !output) return;
+          output.textContent = `${unitsFor(rule, input.value)} un.`;
+        });
       }
 
       function renderSummary() {
@@ -1347,7 +1451,7 @@
         renderStudents();
         renderCurrentUser();
         renderDonationOptions();
-        updatePreview();
+        updateEntryPreviews();
         lucide.createIcons();
       }
 
@@ -1361,6 +1465,18 @@
       els.goLogin.addEventListener("click", () => showScreen(els.loginScreen));
       els.goRegister.addEventListener("click", () => showScreen(els.registerScreen));
       els.logoutBtn.addEventListener("click", logout);
+      els.openEntryBtn.addEventListener("click", () => {
+        if (!activeUserName) {
+          showToast("Faca login antes de registrar.");
+          return;
+        }
+        updateEntryPreviews();
+        showScreen(els.entryScreen);
+      });
+      els.backToAppFromEntry.addEventListener("click", () => {
+        render();
+        showScreen(els.appScreen);
+      });
       els.backToApp.addEventListener("click", () => {
         render();
         showScreen(els.appScreen);
@@ -1384,6 +1500,7 @@
         localStorage.setItem(CURRENT_USER_KEY, activeUserName);
         els.currentUserName.value = activeUserName;
         els.name.value = activeUserName;
+        els.entryStudentName.value = activeUserName;
         els.registerForm.reset();
         openApp();
       });
@@ -1403,6 +1520,7 @@
         localStorage.setItem(CURRENT_USER_KEY, activeUserName);
         els.currentUserName.value = activeUserName;
         els.name.value = activeUserName;
+        els.entryStudentName.value = activeUserName;
         els.loginForm.reset();
         openApp();
         showToast("Login realizado.");
@@ -1416,48 +1534,62 @@
       els.form.addEventListener("submit", async (event) => {
         event.preventDefault();
         if (!activeUserName) {
-          showToast("Informe seu nome na tela principal primeiro.");
-          els.currentUserName.focus();
+          showToast("Faca login antes de registrar.");
           return;
         }
 
-        const rule = rules.find((item) => item.id === els.category.value);
-        const amount = Number(els.amount.value);
-        const units = unitsFor(rule, amount);
+        const entries = rules
+          .map((rule) => {
+            const input = els.entryItems.querySelector(`[data-entry-amount="${rule.id}"]`);
+            const amount = Number(input?.value) || 0;
+            return { rule, amount, units: unitsFor(rule, amount) };
+          })
+          .filter((entry) => entry.amount > 0);
 
-        if (!units) {
-          showToast(`Quantidade insuficiente: ${rule.ratio}.`);
+        if (!entries.length) {
+          showToast("Informe pelo menos uma quantidade.");
+          return;
+        }
+
+        const validEntries = entries.filter((entry) => entry.units > 0);
+        if (!validEntries.length) {
+          showToast("As quantidades informadas ainda nao completam nenhuma unidade.");
           return;
         }
 
         try {
-          state = await apiRequest("/api/entries", {
-            method: "POST",
-            body: JSON.stringify({
-              studentName: activeUserName,
-              category: rule.id,
-              categoryName: rule.name,
-              amount,
-              units,
-              date: els.date.value,
-            }),
-          });
+          for (const entry of validEntries) {
+            state = await apiRequest("/api/entries", {
+              method: "POST",
+              body: JSON.stringify({
+                studentName: activeUserName,
+                category: entry.rule.id,
+                categoryName: entry.rule.name,
+                amount: entry.amount,
+                units: entry.units,
+                date: els.date.value,
+              }),
+            });
+          }
         } catch (error) {
           showToast(error.message);
           return;
         }
 
+        els.entryItems.querySelectorAll("[data-entry-amount]").forEach((input) => {
+          input.value = 0;
+        });
         render();
-        els.form.reset();
         els.date.valueAsDate = new Date();
         els.name.value = activeUserName;
-        updatePreview();
-        els.amount.focus();
+        els.entryStudentName.value = activeUserName;
+        showScreen(els.appScreen);
         showToast("Entrega registrada.");
       });
 
-      els.category.addEventListener("change", updatePreview);
-      els.amount.addEventListener("input", updatePreview);
+      els.entryItems.addEventListener("input", (event) => {
+        if (event.target.matches("[data-entry-amount]")) updateEntryPreviews();
+      });
       els.search.addEventListener("input", renderStudents);
 
       document.querySelectorAll(".tab").forEach((tab) => {
@@ -1630,6 +1762,7 @@
       });
 
       renderRules();
+      renderEntryItems();
       if (activeUserName) {
         openApp();
       } else if (authUsers().length) {
