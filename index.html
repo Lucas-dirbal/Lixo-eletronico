@@ -953,14 +953,10 @@
           <h2 class="panel-title"><i data-lucide="boxes"></i> Pecas por categoria</h2>
         </div>
         <div class="panel-body">
-          <div class="inline" style="margin-bottom: 14px">
+          <div style="margin-bottom: 14px">
             <label>
               Colega
               <input id="entryStudentName" type="text" readonly required />
-            </label>
-            <label>
-              Data
-              <input id="date" name="date" type="date" required />
             </label>
           </div>
           <div class="entry-grid" id="entryItems"></div>
@@ -1130,7 +1126,6 @@
         name: document.querySelector("#studentName"),
         entryStudentName: document.querySelector("#entryStudentName"),
         entryItems: document.querySelector("#entryItems"),
-        date: document.querySelector("#date"),
         list: document.querySelector("#studentList"),
         rules: document.querySelector("#rulesList"),
         totalUnits: document.querySelector("#totalUnits"),
@@ -1148,7 +1143,6 @@
         toast: document.querySelector("#toast"),
       };
 
-      els.date.valueAsDate = new Date();
       els.currentUserName.value = activeUserName;
       els.name.value = activeUserName;
       els.entryStudentName.value = activeUserName;
@@ -1567,7 +1561,7 @@
                 categoryName: entry.rule.name,
                 amount: entry.amount,
                 units: entry.units,
-                date: els.date.value,
+                date: new Date().toISOString().slice(0, 10),
               }),
             });
           }
@@ -1580,7 +1574,6 @@
           input.value = 0;
         });
         render();
-        els.date.valueAsDate = new Date();
         els.name.value = activeUserName;
         els.entryStudentName.value = activeUserName;
         showScreen(els.appScreen);
