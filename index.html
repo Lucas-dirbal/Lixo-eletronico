@@ -55,6 +55,50 @@
         padding: 28px 0 44px;
       }
 
+      .hidden {
+        display: none !important;
+      }
+
+      .auth-screen {
+        width: min(460px, calc(100% - 32px));
+        min-height: 100vh;
+        margin: 0 auto;
+        display: grid;
+        place-items: center;
+        padding: 28px 0;
+      }
+
+      .auth-card {
+        width: 100%;
+        border: 1px solid rgba(141, 224, 90, 0.22);
+        border-radius: 8px;
+        background: rgba(23, 35, 34, 0.9);
+        box-shadow: var(--shadow);
+        padding: 24px;
+      }
+
+      .auth-card .mark {
+        margin-bottom: 18px;
+      }
+
+      .auth-card h1 {
+        font-size: 2rem;
+      }
+
+      .auth-card p {
+        color: var(--muted);
+        margin: 8px 0 18px;
+        line-height: 1.45;
+      }
+
+      .text-btn {
+        color: var(--green-2);
+        background: transparent;
+        padding: 0;
+        min-height: auto;
+        font-weight: 800;
+      }
+
       .topbar {
         display: flex;
         align-items: center;
@@ -681,7 +725,51 @@
     </style>
   </head>
   <body>
-    <main class="shell">
+    <section class="auth-screen" id="registerScreen">
+      <div class="auth-card">
+        <div class="mark" aria-hidden="true"><i data-lucide="recycle"></i></div>
+        <h1>Cadastro</h1>
+        <p>Crie seu acesso. Os dados de login ficam salvos em um JSON no navegador.</p>
+        <form class="form" id="registerForm">
+          <label>
+            Nome
+            <input id="registerName" type="text" autocomplete="name" required />
+          </label>
+          <label>
+            E-mail
+            <input id="registerEmail" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Senha
+            <input id="registerPassword" type="password" autocomplete="new-password" minlength="3" required />
+          </label>
+          <button class="btn primary" type="submit"><i data-lucide="user-plus"></i> Cadastrar</button>
+        </form>
+        <p>Ja tem cadastro? <button class="text-btn" id="goLogin" type="button">Entrar</button></p>
+      </div>
+    </section>
+
+    <section class="auth-screen hidden" id="loginScreen">
+      <div class="auth-card">
+        <div class="mark" aria-hidden="true"><i data-lucide="recycle"></i></div>
+        <h1>Login</h1>
+        <p>Entre para registrar suas pecas e acompanhar a meta de 20 unidades.</p>
+        <form class="form" id="loginForm">
+          <label>
+            E-mail
+            <input id="loginEmail" type="email" autocomplete="email" required />
+          </label>
+          <label>
+            Senha
+            <input id="loginPassword" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="btn primary" type="submit"><i data-lucide="log-in"></i> Entrar</button>
+        </form>
+        <p>Novo por aqui? <button class="text-btn" id="goRegister" type="button">Cadastrar</button></p>
+      </div>
+    </section>
+
+    <main class="shell hidden" id="appScreen">
       <header class="topbar">
         <div class="brand">
           <div class="mark" aria-hidden="true"><i data-lucide="recycle"></i></div>
@@ -714,15 +802,15 @@
         </div>
         <aside class="hero-side">
           <form class="user-card" id="currentUserForm">
-            <h3><i data-lucide="user-round"></i> Seu nome</h3>
+            <h3><i data-lucide="user-round"></i> Usuario</h3>
             <div class="user-row">
-              <input id="currentUserName" type="text" autocomplete="name" placeholder="Digite seu nome" required />
-              <button class="btn primary" type="submit">
-                <i data-lucide="check"></i>
-                Entrar
+              <input id="currentUserName" type="text" readonly />
+              <button class="btn" id="logoutBtn" type="button">
+                <i data-lucide="log-out"></i>
+                Sair
               </button>
             </div>
-            <p class="user-status" id="currentUserStatus">Informe seu nome para registrar entregas e liberar doacoes.</p>
+            <p class="user-status" id="currentUserStatus">Registre suas pecas para liberar doacoes.</p>
           </form>
           <div class="metric">
             <strong id="totalUnits">0</strong>
@@ -808,34 +896,41 @@
       </section>
     </main>
 
-    <dialog id="donationDialog">
-      <form method="dialog" id="donationForm">
-        <div class="modal-head">
-          <h2 class="panel-title"><i data-lucide="hand-heart"></i> Registrar doacao</h2>
-          <button class="btn icon" value="cancel" type="button" id="closeDonation" title="Fechar">
-            <i data-lucide="x"></i>
-          </button>
+    <section class="shell hidden" id="donationScreen">
+      <header class="topbar">
+        <div class="brand">
+          <div class="mark" aria-hidden="true"><i data-lucide="hand-heart"></i></div>
+          <div>
+            <h1>Doar excedente</h1>
+            <p class="subtitle">Esta tela libera somente depois que voce passa de 20 unidades.</p>
+          </div>
         </div>
-        <div class="form">
-          <label>
-            De quem saiu
-            <select id="fromStudent" required></select>
-          </label>
-          <label>
-            Para quem foi
-            <select id="toStudent" required></select>
-          </label>
-          <label>
-            Unidades doadas
-            <input id="donationUnits" type="number" min="1" step="1" value="1" required />
-          </label>
+        <button class="btn" id="backToApp" type="button"><i data-lucide="arrow-left"></i> Voltar</button>
+      </header>
+
+      <section class="panel">
+        <div class="panel-head">
+          <h2 class="panel-title"><i data-lucide="gift"></i> Registrar doacao</h2>
         </div>
-        <div class="modal-foot">
-          <button class="btn" type="button" id="cancelDonation">Cancelar</button>
-          <button class="btn primary" type="submit"><i data-lucide="check"></i> Confirmar</button>
+        <div class="panel-body">
+          <form class="form" id="donationForm">
+            <label>
+              De quem saiu
+              <select id="fromStudent" required></select>
+            </label>
+            <label>
+              Para quem foi
+              <select id="toStudent" required></select>
+            </label>
+            <label>
+              Unidades doadas
+              <input id="donationUnits" type="number" min="1" step="1" value="1" required />
+            </label>
+            <button class="btn primary" type="submit"><i data-lucide="check"></i> Confirmar doacao</button>
+          </form>
         </div>
-      </form>
-    </dialog>
+      </section>
+    </section>
 
     <dialog id="historyDialog">
       <div class="modal-head">
@@ -852,6 +947,7 @@
     <script>
       const TARGET = 20;
       const CURRENT_USER_KEY = "lixo-eletronico-current-user";
+      const AUTH_USERS_KEY = "lixo-eletronico-users-json";
 
       const rules = [
         {
@@ -933,6 +1029,21 @@
       let activeUserName = localStorage.getItem(CURRENT_USER_KEY) || "";
 
       const els = {
+        registerScreen: document.querySelector("#registerScreen"),
+        loginScreen: document.querySelector("#loginScreen"),
+        appScreen: document.querySelector("#appScreen"),
+        donationScreen: document.querySelector("#donationScreen"),
+        registerForm: document.querySelector("#registerForm"),
+        registerName: document.querySelector("#registerName"),
+        registerEmail: document.querySelector("#registerEmail"),
+        registerPassword: document.querySelector("#registerPassword"),
+        loginForm: document.querySelector("#loginForm"),
+        loginEmail: document.querySelector("#loginEmail"),
+        loginPassword: document.querySelector("#loginPassword"),
+        goLogin: document.querySelector("#goLogin"),
+        goRegister: document.querySelector("#goRegister"),
+        logoutBtn: document.querySelector("#logoutBtn"),
+        backToApp: document.querySelector("#backToApp"),
         currentUserForm: document.querySelector("#currentUserForm"),
         currentUserName: document.querySelector("#currentUserName"),
         currentUserStatus: document.querySelector("#currentUserStatus"),
@@ -950,7 +1061,6 @@
         surplusUnits: document.querySelector("#surplusUnits"),
         search: document.querySelector("#search"),
         donationBtn: document.querySelector("#donationBtn"),
-        donationDialog: document.querySelector("#donationDialog"),
         donationForm: document.querySelector("#donationForm"),
         fromStudent: document.querySelector("#fromStudent"),
         toStudent: document.querySelector("#toStudent"),
@@ -982,6 +1092,38 @@
       async function refreshState() {
         state = await apiRequest("/api/state");
         render();
+      }
+
+      function authUsers() {
+        try {
+          const users = JSON.parse(localStorage.getItem(AUTH_USERS_KEY));
+          return Array.isArray(users) ? users : [];
+        } catch {
+          return [];
+        }
+      }
+
+      function saveAuthUsers(users) {
+        localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(users, null, 2));
+      }
+
+      function showScreen(screen) {
+        [els.registerScreen, els.loginScreen, els.appScreen, els.donationScreen].forEach((item) => {
+          item.classList.toggle("hidden", item !== screen);
+        });
+        lucide.createIcons();
+      }
+
+      function openApp() {
+        showScreen(els.appScreen);
+        refreshState().catch((error) => showToast(error.message));
+      }
+
+      function logout() {
+        activeUserName = "";
+        localStorage.removeItem(CURRENT_USER_KEY);
+        els.loginPassword.value = "";
+        showScreen(els.loginScreen);
       }
 
       function uid() {
@@ -1216,12 +1358,60 @@
         showToast.timeout = setTimeout(() => els.toast.classList.remove("show"), 2200);
       }
 
+      els.goLogin.addEventListener("click", () => showScreen(els.loginScreen));
+      els.goRegister.addEventListener("click", () => showScreen(els.registerScreen));
+      els.logoutBtn.addEventListener("click", logout);
+      els.backToApp.addEventListener("click", () => {
+        render();
+        showScreen(els.appScreen);
+      });
+
+      els.registerForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const name = normalizeName(els.registerName.value);
+        const email = els.registerEmail.value.trim().toLocaleLowerCase("pt-BR");
+        const password = els.registerPassword.value;
+        const users = authUsers();
+
+        if (users.some((user) => user.email === email)) {
+          showToast("Este e-mail ja tem cadastro.");
+          return;
+        }
+
+        users.push({ id: uid(), name, email, password, createdAt: new Date().toISOString() });
+        saveAuthUsers(users);
+        activeUserName = name;
+        localStorage.setItem(CURRENT_USER_KEY, activeUserName);
+        els.currentUserName.value = activeUserName;
+        els.name.value = activeUserName;
+        els.registerForm.reset();
+        openApp();
+        showToast("Cadastro salvo em JSON.");
+      });
+
+      els.loginForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const email = els.loginEmail.value.trim().toLocaleLowerCase("pt-BR");
+        const password = els.loginPassword.value;
+        const user = authUsers().find((item) => item.email === email && item.password === password);
+
+        if (!user) {
+          showToast("E-mail ou senha invalido.");
+          return;
+        }
+
+        activeUserName = user.name;
+        localStorage.setItem(CURRENT_USER_KEY, activeUserName);
+        els.currentUserName.value = activeUserName;
+        els.name.value = activeUserName;
+        els.loginForm.reset();
+        openApp();
+        showToast("Login realizado.");
+      });
+
       els.currentUserForm.addEventListener("submit", (event) => {
         event.preventDefault();
-        activeUserName = normalizeName(els.currentUserName.value);
-        localStorage.setItem(CURRENT_USER_KEY, activeUserName);
         render();
-        showToast("Nome definido.");
       });
 
       els.form.addEventListener("submit", async (event) => {
@@ -1364,11 +1554,9 @@
           showToast("Nao ha colega pendente para receber doacao.");
           return;
         }
-        els.donationDialog.showModal();
+        showScreen(els.donationScreen);
       });
 
-      document.querySelector("#closeDonation").addEventListener("click", () => els.donationDialog.close());
-      document.querySelector("#cancelDonation").addEventListener("click", () => els.donationDialog.close());
       document.querySelector("#closeHistory").addEventListener("click", () => els.historyDialog.close());
 
       els.donationForm.addEventListener("submit", async (event) => {
@@ -1402,8 +1590,8 @@
           return;
         }
 
-        els.donationDialog.close();
         render();
+        showScreen(els.appScreen);
         showToast("Doacao registrada.");
       });
 
@@ -1443,7 +1631,13 @@
       });
 
       renderRules();
-      refreshState().catch((error) => showToast(error.message));
+      if (activeUserName) {
+        openApp();
+      } else if (authUsers().length) {
+        showScreen(els.loginScreen);
+      } else {
+        showScreen(els.registerScreen);
+      }
     </script>
   </body>
 </html>
