@@ -1,0 +1,1304 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lixo Eletronico | Controle de Arrecadacao</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --bg: #101818;
+        --panel: #172322;
+        --panel-2: #1e2d2b;
+        --line: #2e4a43;
+        --text: #f4fff9;
+        --muted: #a8beb5;
+        --green: #20c463;
+        --green-2: #8de05a;
+        --amber: #f2b84b;
+        --red: #ef6b66;
+        --blue: #58b7ff;
+        --shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 18% 12%, rgba(32, 196, 99, 0.2), transparent 28rem),
+          linear-gradient(135deg, #0d1516 0%, #12201e 55%, #0f1818 100%);
+        color: var(--text);
+      }
+
+      button,
+      input,
+      select {
+        font: inherit;
+      }
+
+      button {
+        border: 0;
+        cursor: pointer;
+      }
+
+      .shell {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 44px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        margin-bottom: 24px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .mark {
+        display: grid;
+        place-items: center;
+        width: 50px;
+        height: 50px;
+        border: 1px solid rgba(141, 224, 90, 0.45);
+        border-radius: 8px;
+        background: linear-gradient(145deg, rgba(32, 196, 99, 0.3), rgba(88, 183, 255, 0.12));
+        box-shadow: 0 0 0 4px rgba(32, 196, 99, 0.08);
+        flex: 0 0 auto;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(1.5rem, 3vw, 2.55rem);
+        line-height: 1.02;
+        letter-spacing: 0;
+      }
+
+      .subtitle {
+        margin-top: 5px;
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+
+      .actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 0 14px;
+        border-radius: 8px;
+        background: #24413b;
+        color: var(--text);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        transition: transform 0.15s ease, background 0.15s ease, border 0.15s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        background: #2b5047;
+      }
+
+      .btn.primary {
+        background: linear-gradient(135deg, var(--green), #15944d);
+        color: #06120c;
+        font-weight: 800;
+      }
+
+      .btn.danger {
+        background: rgba(239, 107, 102, 0.14);
+        color: #ffd8d5;
+        border-color: rgba(239, 107, 102, 0.35);
+      }
+
+      .btn.icon {
+        width: 42px;
+        padding: 0;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 18px;
+        align-items: stretch;
+        margin-bottom: 18px;
+      }
+
+      .hero-main,
+      .hero-side,
+      .panel {
+        border: 1px solid rgba(141, 224, 90, 0.22);
+        background: rgba(23, 35, 34, 0.84);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(14px);
+      }
+
+      .hero-main {
+        min-height: 240px;
+        border-radius: 8px;
+        padding: 28px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .hero-main::after {
+        content: "";
+        position: absolute;
+        inset: auto -50px -86px auto;
+        width: 330px;
+        height: 330px;
+        background:
+          linear-gradient(90deg, transparent 47%, rgba(32, 196, 99, 0.4) 48% 52%, transparent 53%),
+          linear-gradient(0deg, transparent 47%, rgba(88, 183, 255, 0.2) 48% 52%, transparent 53%);
+        background-size: 42px 42px;
+        transform: rotate(10deg);
+        opacity: 0.8;
+      }
+
+      .hero-copy {
+        position: relative;
+        z-index: 1;
+        max-width: 680px;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--green-2);
+        font-weight: 800;
+        text-transform: uppercase;
+        font-size: 0.78rem;
+        margin-bottom: 16px;
+      }
+
+      .hero-title {
+        font-size: clamp(2.1rem, 6vw, 5rem);
+        line-height: 0.92;
+        letter-spacing: 0;
+        max-width: 730px;
+      }
+
+      .hero-text {
+        margin-top: 18px;
+        color: #d7e9e1;
+        max-width: 620px;
+        font-size: 1.05rem;
+        line-height: 1.55;
+      }
+
+      .hero-side {
+        display: grid;
+        border-radius: 8px;
+        padding: 22px;
+        gap: 16px;
+      }
+
+      .metric {
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 14px;
+      }
+
+      .metric:last-child {
+        border-bottom: 0;
+        padding-bottom: 0;
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 2.3rem;
+        line-height: 1;
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: minmax(300px, 380px) minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+      }
+
+      .panel {
+        border-radius: 8px;
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 18px 18px 0;
+      }
+
+      .panel-title {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 1.05rem;
+      }
+
+      .panel-body {
+        padding: 18px;
+      }
+
+      .form {
+        display: grid;
+        gap: 12px;
+      }
+
+      label {
+        display: grid;
+        gap: 7px;
+        color: var(--muted);
+        font-size: 0.86rem;
+        font-weight: 700;
+      }
+
+      input,
+      select {
+        width: 100%;
+        min-height: 42px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: #0f1919;
+        color: var(--text);
+        padding: 0 12px;
+        outline: none;
+      }
+
+      input:focus,
+      select:focus {
+        border-color: var(--green);
+        box-shadow: 0 0 0 3px rgba(32, 196, 99, 0.16);
+      }
+
+      .inline {
+        display: grid;
+        grid-template-columns: 1fr 110px;
+        gap: 10px;
+      }
+
+      .preview {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        border: 1px solid rgba(141, 224, 90, 0.22);
+        border-radius: 8px;
+        padding: 12px;
+        background: rgba(32, 196, 99, 0.08);
+      }
+
+      .preview span {
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .preview strong {
+        font-size: 1.35rem;
+      }
+
+      .tabs {
+        display: flex;
+        gap: 6px;
+        padding: 4px;
+        border-radius: 8px;
+        background: #0e1817;
+        border: 1px solid var(--line);
+      }
+
+      .tab {
+        min-height: 34px;
+        padding: 0 12px;
+        border-radius: 6px;
+        color: var(--muted);
+        background: transparent;
+      }
+
+      .tab.active {
+        background: #25443d;
+        color: var(--text);
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+
+      .search {
+        max-width: 320px;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .person {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 14px;
+        padding: 14px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        background: rgba(15, 25, 25, 0.72);
+      }
+
+      .person-main {
+        min-width: 0;
+      }
+
+      .person-top {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        flex-wrap: wrap;
+      }
+
+      .person-name {
+        font-weight: 850;
+        font-size: 1.05rem;
+        overflow-wrap: anywhere;
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 26px;
+        padding: 0 9px;
+        border-radius: 999px;
+        font-size: 0.78rem;
+        font-weight: 800;
+        background: rgba(88, 183, 255, 0.14);
+        color: #c9ebff;
+        border: 1px solid rgba(88, 183, 255, 0.25);
+      }
+
+      .badge.ok {
+        background: rgba(32, 196, 99, 0.16);
+        color: #c7ffd8;
+        border-color: rgba(32, 196, 99, 0.32);
+      }
+
+      .badge.warn {
+        background: rgba(242, 184, 75, 0.14);
+        color: #ffe0a7;
+        border-color: rgba(242, 184, 75, 0.28);
+      }
+
+      .progress {
+        height: 10px;
+        margin: 12px 0 8px;
+        border-radius: 999px;
+        background: #0a1212;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .bar {
+        height: 100%;
+        width: 0;
+        background: linear-gradient(90deg, var(--green), var(--green-2));
+        border-radius: inherit;
+      }
+
+      .person-stats {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .person-actions {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .empty {
+        display: grid;
+        place-items: center;
+        min-height: 170px;
+        color: var(--muted);
+        text-align: center;
+        border: 1px dashed var(--line);
+        border-radius: 8px;
+        padding: 22px;
+      }
+
+      .rules {
+        display: grid;
+        gap: 9px;
+      }
+
+      .rule {
+        display: grid;
+        grid-template-columns: 34px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px;
+        background: rgba(15, 25, 25, 0.62);
+      }
+
+      .rule-icon {
+        display: grid;
+        place-items: center;
+        width: 34px;
+        height: 34px;
+        border-radius: 8px;
+        background: rgba(32, 196, 99, 0.12);
+        color: var(--green-2);
+      }
+
+      .rule strong {
+        display: block;
+        font-size: 0.92rem;
+      }
+
+      .rule span {
+        display: block;
+        color: var(--muted);
+        margin-top: 2px;
+        font-size: 0.82rem;
+        line-height: 1.35;
+      }
+
+      .ratio {
+        color: var(--text);
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      dialog {
+        width: min(520px, calc(100% - 28px));
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #13201f;
+        color: var(--text);
+        box-shadow: var(--shadow);
+      }
+
+      dialog::backdrop {
+        background: rgba(0, 0, 0, 0.66);
+      }
+
+      .modal-head,
+      .modal-foot {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .modal-head {
+        margin-bottom: 18px;
+      }
+
+      .modal-foot {
+        margin-top: 16px;
+      }
+
+      .history {
+        max-height: 230px;
+        overflow: auto;
+        display: grid;
+        gap: 8px;
+      }
+
+      .history-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(15, 25, 25, 0.72);
+        border: 1px solid var(--line);
+      }
+
+      .history-item small {
+        color: var(--muted);
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 22px;
+        transform: translateX(-50%) translateY(20px);
+        opacity: 0;
+        pointer-events: none;
+        background: #effff5;
+        color: #06120c;
+        font-weight: 800;
+        padding: 12px 14px;
+        border-radius: 8px;
+        box-shadow: var(--shadow);
+        transition: opacity 0.2s ease, transform 0.2s ease;
+        z-index: 10;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+
+      @media (max-width: 920px) {
+        .topbar,
+        .hero,
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .topbar {
+          display: grid;
+        }
+
+        .actions {
+          justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 640px) {
+        .shell {
+          width: min(100% - 20px, 1180px);
+          padding-top: 16px;
+        }
+
+        .hero-main {
+          min-height: 260px;
+          padding: 20px;
+        }
+
+        .hero-side,
+        .panel-body,
+        .panel-head {
+          padding-left: 14px;
+          padding-right: 14px;
+        }
+
+        .inline,
+        .person {
+          grid-template-columns: 1fr;
+        }
+
+        .person-actions,
+        .toolbar {
+          align-items: stretch;
+          flex-direction: column;
+        }
+
+        .tabs,
+        .search {
+          width: 100%;
+        }
+
+        .tab {
+          flex: 1;
+        }
+
+        .rule {
+          grid-template-columns: 34px minmax(0, 1fr);
+        }
+
+        .ratio {
+          grid-column: 2;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="mark" aria-hidden="true"><i data-lucide="recycle"></i></div>
+          <div>
+            <h1>Lixo Eletronico</h1>
+            <p class="subtitle">Desafio integrador ADS | Controle de 20 unidades por colega</p>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn" id="exportBtn" type="button" title="Exportar dados">
+            <i data-lucide="download"></i>
+            Exportar
+          </button>
+          <button class="btn danger" id="resetBtn" type="button" title="Limpar dados">
+            <i data-lucide="trash-2"></i>
+            Limpar
+          </button>
+        </div>
+      </header>
+
+      <section class="hero" aria-label="Resumo da campanha">
+        <div class="hero-main">
+          <div class="hero-copy">
+            <div class="kicker"><i data-lucide="leaf"></i> Tecnologia a servico do meio ambiente</div>
+            <h2 class="hero-title">Arrecadacao de residuos eletronicos</h2>
+            <p class="hero-text">
+              Acompanhe as entregas da turma, calcule automaticamente as unidades por tipo de item e registre doacoes de excedente quando alguem passar da meta.
+            </p>
+          </div>
+        </div>
+        <aside class="hero-side">
+          <div class="metric">
+            <strong id="totalUnits">0</strong>
+            <span>unidades registradas</span>
+          </div>
+          <div class="metric">
+            <strong id="doneCount">0</strong>
+            <span>colegas com meta completa</span>
+          </div>
+          <div class="metric">
+            <strong id="surplusUnits">0</strong>
+            <span>unidades disponiveis para doar</span>
+          </div>
+        </aside>
+      </section>
+
+      <section class="grid">
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i data-lucide="plus-circle"></i> Registrar entrega</h2>
+          </div>
+          <div class="panel-body">
+            <form class="form" id="entryForm">
+              <label>
+                Colega
+                <input id="studentName" name="studentName" type="text" autocomplete="name" placeholder="Nome do colega" required />
+              </label>
+              <label>
+                Categoria
+                <select id="category" name="category" required></select>
+              </label>
+              <div class="inline">
+                <label>
+                  Quantidade
+                  <input id="amount" name="amount" type="number" min="1" step="1" value="1" required />
+                </label>
+                <label>
+                  Data
+                  <input id="date" name="date" type="date" required />
+                </label>
+              </div>
+              <div class="preview">
+                <span id="conversionText">Selecione uma categoria</span>
+                <strong><span id="unitPreview">1</span> un.</strong>
+              </div>
+              <button class="btn primary" type="submit">
+                <i data-lucide="save"></i>
+                Salvar entrega
+              </button>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2 class="panel-title"><i data-lucide="users"></i> Turma</h2>
+            <div class="tabs" role="tablist" aria-label="Filtro de colegas">
+              <button class="tab active" data-filter="all" type="button">Todos</button>
+              <button class="tab" data-filter="pending" type="button">Pendentes</button>
+              <button class="tab" data-filter="done" type="button">20+</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="toolbar">
+              <input class="search" id="search" type="search" placeholder="Buscar colega" />
+              <button class="btn" id="donationBtn" type="button">
+                <i data-lucide="hand-heart"></i>
+                Registrar doacao
+              </button>
+            </div>
+            <div class="list" id="studentList"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" style="margin-top: 18px">
+        <div class="panel-head">
+          <h2 class="panel-title"><i data-lucide="clipboard-list"></i> Itens e quantitativos</h2>
+        </div>
+        <div class="panel-body">
+          <div class="rules" id="rulesList"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="donationDialog">
+      <form method="dialog" id="donationForm">
+        <div class="modal-head">
+          <h2 class="panel-title"><i data-lucide="hand-heart"></i> Registrar doacao</h2>
+          <button class="btn icon" value="cancel" type="button" id="closeDonation" title="Fechar">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="form">
+          <label>
+            De quem saiu
+            <select id="fromStudent" required></select>
+          </label>
+          <label>
+            Para quem foi
+            <select id="toStudent" required></select>
+          </label>
+          <label>
+            Unidades doadas
+            <input id="donationUnits" type="number" min="1" step="1" value="1" required />
+          </label>
+        </div>
+        <div class="modal-foot">
+          <button class="btn" type="button" id="cancelDonation">Cancelar</button>
+          <button class="btn primary" type="submit"><i data-lucide="check"></i> Confirmar</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="historyDialog">
+      <div class="modal-head">
+        <h2 class="panel-title" id="historyTitle"><i data-lucide="history"></i> Historico</h2>
+        <button class="btn icon" id="closeHistory" type="button" title="Fechar">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="history" id="historyList"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script>
+      const STORAGE_KEY = "lixo-eletronico-turma-v1";
+      const TARGET = 20;
+
+      const rules = [
+        {
+          id: "linha",
+          name: "Linha Informatica",
+          icon: "monitor",
+          examples: "Gabinete completo, notebooks, monitores, impressoras, scanners.",
+          ratio: "1 item = 2 unidades",
+          divisor: 0.5,
+        },
+        {
+          id: "internos",
+          name: "Componentes Internos",
+          icon: "cpu",
+          examples: "Placas-mae, placas de video, memorias RAM, HDs, fontes, coolers, processadores.",
+          ratio: "10 itens = 1 unidade",
+          divisor: 10,
+        },
+        {
+          id: "telecom",
+          name: "Telecomunicacoes",
+          icon: "smartphone",
+          examples: "Celulares, tablets, telefones fixos, roteadores, modems.",
+          ratio: "1 aparelho = 1 unidade",
+          divisor: 1,
+        },
+        {
+          id: "cabos",
+          name: "Cabos e Conectores",
+          icon: "cable",
+          examples: "Cabos de forca, VGA/HDMI, rede e adaptadores diversos.",
+          ratio: "10 cabos = 1 unidade",
+          divisor: 10,
+        },
+        {
+          id: "pequenos",
+          name: "Pequenos Eletronicos",
+          icon: "camera",
+          examples: "Calculadoras, cameras digitais, MP3 players.",
+          ratio: "1 aparelho = 1 unidade",
+          divisor: 1,
+        },
+        {
+          id: "componentes",
+          name: "Componentes",
+          icon: "battery-charging",
+          examples: "Pilhas, baterias de celular e conectores pequenos.",
+          ratio: "10 itens = 1 unidade",
+          divisor: 10,
+        },
+        {
+          id: "eletro-pequenos",
+          name: "Eletrodomesticos Pequenos",
+          icon: "plug",
+          examples: "Mixers, liquidificadores, sanduicheiras, secadores, ferros, batedeiras.",
+          ratio: "1 aparelho = 1 unidade",
+          divisor: 1,
+        },
+        {
+          id: "eletro-medios",
+          name: "Eletrodomesticos Medios",
+          icon: "fan",
+          examples: "Fornos eletricos, aspiradores, ventiladores, televisores, aparelhos de som, micro-ondas, video games.",
+          ratio: "1 aparelho = 2 unidades",
+          divisor: 0.5,
+        },
+        {
+          id: "perifericos",
+          name: "Perifericos",
+          icon: "keyboard",
+          examples: "Teclados, mouses, controles remotos e carregadores.",
+          ratio: "5 itens = 1 unidade",
+          divisor: 5,
+        },
+      ];
+
+      const state = loadState();
+      let currentFilter = "all";
+
+      const els = {
+        form: document.querySelector("#entryForm"),
+        name: document.querySelector("#studentName"),
+        category: document.querySelector("#category"),
+        amount: document.querySelector("#amount"),
+        date: document.querySelector("#date"),
+        preview: document.querySelector("#unitPreview"),
+        conversion: document.querySelector("#conversionText"),
+        list: document.querySelector("#studentList"),
+        rules: document.querySelector("#rulesList"),
+        totalUnits: document.querySelector("#totalUnits"),
+        doneCount: document.querySelector("#doneCount"),
+        surplusUnits: document.querySelector("#surplusUnits"),
+        search: document.querySelector("#search"),
+        donationBtn: document.querySelector("#donationBtn"),
+        donationDialog: document.querySelector("#donationDialog"),
+        donationForm: document.querySelector("#donationForm"),
+        fromStudent: document.querySelector("#fromStudent"),
+        toStudent: document.querySelector("#toStudent"),
+        donationUnits: document.querySelector("#donationUnits"),
+        historyDialog: document.querySelector("#historyDialog"),
+        historyTitle: document.querySelector("#historyTitle"),
+        historyList: document.querySelector("#historyList"),
+        toast: document.querySelector("#toast"),
+      };
+
+      els.date.valueAsDate = new Date();
+
+      function loadState() {
+        try {
+          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+          return saved && Array.isArray(saved.students) ? saved : { students: [] };
+        } catch {
+          return { students: [] };
+        }
+      }
+
+      function saveState() {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
+
+      function uid() {
+        return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+      }
+
+      function normalizeName(name) {
+        return name.trim().replace(/\s+/g, " ");
+      }
+
+      function unitsFor(rule, amount) {
+        const raw = Number(amount) || 0;
+        if (rule.divisor === 0.5) return raw * 2;
+        return Math.floor(raw / rule.divisor);
+      }
+
+      function totals(student) {
+        const collected = student.entries.reduce((sum, entry) => sum + entry.units, 0);
+        const donatedOut = student.donationsOut.reduce((sum, donation) => sum + donation.units, 0);
+        const donatedIn = student.donationsIn.reduce((sum, donation) => sum + donation.units, 0);
+        const net = collected - donatedOut + donatedIn;
+        return {
+          collected,
+          donatedOut,
+          donatedIn,
+          net,
+          remaining: Math.max(TARGET - net, 0),
+          surplus: Math.max(net - TARGET, 0),
+        };
+      }
+
+      function findStudentByName(name) {
+        const normalized = normalizeName(name).toLocaleLowerCase("pt-BR");
+        return state.students.find((student) => student.name.toLocaleLowerCase("pt-BR") === normalized);
+      }
+
+      function getOrCreateStudent(name) {
+        const clean = normalizeName(name);
+        const existing = findStudentByName(clean);
+        if (existing) return existing;
+
+        const student = {
+          id: uid(),
+          name: clean,
+          entries: [],
+          donationsIn: [],
+          donationsOut: [],
+        };
+        state.students.push(student);
+        return student;
+      }
+
+      function renderRules() {
+        els.category.innerHTML = rules
+          .map((rule) => `<option value="${rule.id}">${rule.name}</option>`)
+          .join("");
+
+        els.rules.innerHTML = rules
+          .map(
+            (rule) => `
+              <article class="rule">
+                <div class="rule-icon"><i data-lucide="${rule.icon}"></i></div>
+                <div>
+                  <strong>${rule.name}</strong>
+                  <span>${rule.examples}</span>
+                </div>
+                <div class="ratio">${rule.ratio}</div>
+              </article>
+            `,
+          )
+          .join("");
+      }
+
+      function updatePreview() {
+        const rule = rules.find((item) => item.id === els.category.value) || rules[0];
+        const amount = Number(els.amount.value) || 0;
+        els.preview.textContent = unitsFor(rule, amount);
+        els.conversion.textContent = rule.ratio;
+      }
+
+      function renderSummary() {
+        const summary = state.students.reduce(
+          (acc, student) => {
+            const total = totals(student);
+            acc.units += total.net;
+            acc.done += total.net >= TARGET ? 1 : 0;
+            acc.surplus += total.surplus;
+            return acc;
+          },
+          { units: 0, done: 0, surplus: 0 },
+        );
+
+        els.totalUnits.textContent = summary.units;
+        els.doneCount.textContent = summary.done;
+        els.surplusUnits.textContent = summary.surplus;
+      }
+
+      function renderStudents() {
+        const query = els.search.value.trim().toLocaleLowerCase("pt-BR");
+        const students = [...state.students]
+          .sort((a, b) => totals(b).net - totals(a).net || a.name.localeCompare(b.name, "pt-BR"))
+          .filter((student) => {
+            const total = totals(student);
+            const matchesSearch = student.name.toLocaleLowerCase("pt-BR").includes(query);
+            const matchesFilter =
+              currentFilter === "all" ||
+              (currentFilter === "pending" && total.net < TARGET) ||
+              (currentFilter === "done" && total.net >= TARGET);
+            return matchesSearch && matchesFilter;
+          });
+
+        if (!students.length) {
+          els.list.innerHTML = `<div class="empty">Nenhum registro encontrado.</div>`;
+          return;
+        }
+
+        els.list.innerHTML = students
+          .map((student) => {
+            const total = totals(student);
+            const progress = Math.min((total.net / TARGET) * 100, 100);
+            const badge =
+              total.net >= TARGET
+                ? `<span class="badge ok"><i data-lucide="check-circle-2"></i> Meta completa</span>`
+                : `<span class="badge warn"><i data-lucide="clock"></i> Faltam ${total.remaining}</span>`;
+            const donationBadge = total.surplus
+              ? `<span class="badge"><i data-lucide="gift"></i> ${total.surplus} para doar</span>`
+              : "";
+
+            return `
+              <article class="person">
+                <div class="person-main">
+                  <div class="person-top">
+                    <span class="person-name">${student.name}</span>
+                    ${badge}
+                    ${donationBadge}
+                  </div>
+                  <div class="progress" aria-label="Progresso de ${student.name}">
+                    <div class="bar" style="width: ${progress}%"></div>
+                  </div>
+                  <div class="person-stats">
+                    <span>${total.net} / ${TARGET} unidades</span>
+                    <span>${total.collected} arrecadadas</span>
+                    <span>${total.donatedIn} recebidas</span>
+                    <span>${total.donatedOut} doadas</span>
+                  </div>
+                </div>
+                <div class="person-actions">
+                  <button class="btn icon" type="button" data-history="${student.id}" title="Historico">
+                    <i data-lucide="history"></i>
+                  </button>
+                  <button class="btn icon danger" type="button" data-remove="${student.id}" title="Remover">
+                    <i data-lucide="trash-2"></i>
+                  </button>
+                </div>
+              </article>
+            `;
+          })
+          .join("");
+      }
+
+      function renderDonationOptions() {
+        const donors = state.students.filter((student) => totals(student).surplus > 0);
+        const receivers = state.students.filter((student) => totals(student).remaining > 0);
+
+        els.fromStudent.innerHTML = donors
+          .map((student) => `<option value="${student.id}">${student.name} (${totals(student).surplus} disp.)</option>`)
+          .join("");
+        els.toStudent.innerHTML = receivers
+          .map((student) => `<option value="${student.id}">${student.name} (faltam ${totals(student).remaining})</option>`)
+          .join("");
+      }
+
+      function render() {
+        renderSummary();
+        renderStudents();
+        renderDonationOptions();
+        updatePreview();
+        lucide.createIcons();
+      }
+
+      function showToast(message) {
+        els.toast.textContent = message;
+        els.toast.classList.add("show");
+        clearTimeout(showToast.timeout);
+        showToast.timeout = setTimeout(() => els.toast.classList.remove("show"), 2200);
+      }
+
+      els.form.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const rule = rules.find((item) => item.id === els.category.value);
+        const amount = Number(els.amount.value);
+        const units = unitsFor(rule, amount);
+
+        if (!units) {
+          showToast(`Quantidade insuficiente: ${rule.ratio}.`);
+          return;
+        }
+
+        const student = getOrCreateStudent(els.name.value);
+        student.entries.push({
+          id: uid(),
+          category: rule.id,
+          categoryName: rule.name,
+          amount,
+          units,
+          date: els.date.value,
+        });
+
+        saveState();
+        render();
+        els.form.reset();
+        els.date.valueAsDate = new Date();
+        updatePreview();
+        els.name.focus();
+        showToast("Entrega registrada.");
+      });
+
+      els.category.addEventListener("change", updatePreview);
+      els.amount.addEventListener("input", updatePreview);
+      els.search.addEventListener("input", renderStudents);
+
+      document.querySelectorAll(".tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          currentFilter = tab.dataset.filter;
+          document.querySelectorAll(".tab").forEach((item) => item.classList.toggle("active", item === tab));
+          renderStudents();
+          lucide.createIcons();
+        });
+      });
+
+      els.list.addEventListener("click", (event) => {
+        const historyButton = event.target.closest("[data-history]");
+        const removeButton = event.target.closest("[data-remove]");
+
+        if (historyButton) {
+          openHistory(historyButton.dataset.history);
+        }
+
+        if (removeButton) {
+          const student = state.students.find((item) => item.id === removeButton.dataset.remove);
+          if (student && confirm(`Remover ${student.name} e todos os registros?`)) {
+            state.students = state.students.filter((item) => item.id !== student.id);
+            state.students.forEach((item) => {
+              item.donationsIn = item.donationsIn.filter((donation) => donation.fromId !== student.id);
+              item.donationsOut = item.donationsOut.filter((donation) => donation.toId !== student.id);
+            });
+            saveState();
+            render();
+            showToast("Registro removido.");
+          }
+        }
+      });
+
+      function openHistory(studentId) {
+        const student = state.students.find((item) => item.id === studentId);
+        if (!student) return;
+
+        const rows = [
+          ...student.entries.map((entry) => ({
+            label: `${entry.categoryName}: ${entry.amount} item(ns)`,
+            meta: `${entry.date || "Sem data"} | +${entry.units} un.`,
+          })),
+          ...student.donationsIn.map((donation) => ({
+            label: `Recebeu de ${donation.fromName}`,
+            meta: `${donation.date} | +${donation.units} un.`,
+          })),
+          ...student.donationsOut.map((donation) => ({
+            label: `Doou para ${donation.toName}`,
+            meta: `${donation.date} | -${donation.units} un.`,
+          })),
+        ];
+
+        els.historyTitle.innerHTML = `<i data-lucide="history"></i> ${student.name}`;
+        els.historyList.innerHTML = rows.length
+          ? rows
+              .map(
+                (row) => `
+                  <div class="history-item">
+                    <span>${row.label}</span>
+                    <small>${row.meta}</small>
+                  </div>
+                `,
+              )
+              .join("")
+          : `<div class="empty">Sem historico.</div>`;
+        els.historyDialog.showModal();
+        lucide.createIcons();
+      }
+
+      els.donationBtn.addEventListener("click", () => {
+        renderDonationOptions();
+        if (!els.fromStudent.options.length || !els.toStudent.options.length) {
+          showToast("Precisa ter excedente e colega pendente para doar.");
+          return;
+        }
+        els.donationDialog.showModal();
+      });
+
+      document.querySelector("#closeDonation").addEventListener("click", () => els.donationDialog.close());
+      document.querySelector("#cancelDonation").addEventListener("click", () => els.donationDialog.close());
+      document.querySelector("#closeHistory").addEventListener("click", () => els.historyDialog.close());
+
+      els.donationForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        const from = state.students.find((student) => student.id === els.fromStudent.value);
+        const to = state.students.find((student) => student.id === els.toStudent.value);
+        const units = Number(els.donationUnits.value);
+
+        if (!from || !to || from.id === to.id) {
+          showToast("Escolha colegas diferentes.");
+          return;
+        }
+
+        const fromTotal = totals(from);
+        const toTotal = totals(to);
+        const allowed = Math.min(fromTotal.surplus, toTotal.remaining);
+
+        if (units < 1 || units > allowed) {
+          showToast(`Doacao maxima permitida: ${allowed} unidade(s).`);
+          return;
+        }
+
+        const donation = {
+          id: uid(),
+          fromId: from.id,
+          fromName: from.name,
+          toId: to.id,
+          toName: to.name,
+          units,
+          date: new Date().toISOString().slice(0, 10),
+        };
+
+        from.donationsOut.push(donation);
+        to.donationsIn.push(donation);
+        saveState();
+        els.donationDialog.close();
+        render();
+        showToast("Doacao registrada.");
+      });
+
+      document.querySelector("#exportBtn").addEventListener("click", () => {
+        const rows = state.students.map((student) => {
+          const total = totals(student);
+          return {
+            nome: student.name,
+            unidades: total.net,
+            arrecadadas: total.collected,
+            recebidas: total.donatedIn,
+            doadas: total.donatedOut,
+            faltam: total.remaining,
+            excedente: total.surplus,
+          };
+        });
+        const blob = new Blob([JSON.stringify(rows, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = "lixo-eletronico-turma.json";
+        link.click();
+        URL.revokeObjectURL(url);
+      });
+
+      document.querySelector("#resetBtn").addEventListener("click", () => {
+        if (confirm("Limpar todos os registros da campanha?")) {
+          state.students = [];
+          saveState();
+          render();
+          showToast("Dados limpos.");
+        }
+      });
+
+      renderRules();
+      render();
+    </script>
+  </body>
+</html>
