@@ -1,0 +1,13 @@
+{
+  "name": "lixo-eletronico",
+  "version": "1.0.0",
+  "description": "Controle de arrecadacao de lixo eletronico com SQLite.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^11.10.0",
+    "express": "^4.21.2"
+  }
+}

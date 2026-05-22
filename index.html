@@ -806,7 +806,6 @@
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
     <script>
-      const STORAGE_KEY = "lixo-eletronico-turma-v1";
       const TARGET = 20;
 
       const rules = [
@@ -884,7 +883,7 @@
         },
       ];
 
-      const state = loadState();
+      let state = { students: [] };
       let currentFilter = "all";
 
       const els = {
@@ -915,17 +914,23 @@
 
       els.date.valueAsDate = new Date();
 
-      function loadState() {
-        try {
-          const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-          return saved && Array.isArray(saved.students) ? saved : { students: [] };
-        } catch {
-          return { students: [] };
+      async function apiRequest(path, options = {}) {
+        const response = await fetch(path, {
+          headers: { "Content-Type": "application/json", ...(options.headers || {}) },
+          ...options,
+        });
+
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(payload.error || "Nao foi possivel salvar os dados.");
         }
+
+        return payload;
       }
 
-      function saveState() {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      async function refreshState() {
+        state = await apiRequest("/api/state");
+        render();
       }
 
       function uid() {
@@ -1113,7 +1118,7 @@
         showToast.timeout = setTimeout(() => els.toast.classList.remove("show"), 2200);
       }
 
-      els.form.addEventListener("submit", (event) => {
+      els.form.addEventListener("submit", async (event) => {
         event.preventDefault();
         const rule = rules.find((item) => item.id === els.category.value);
         const amount = Number(els.amount.value);
@@ -1124,17 +1129,23 @@
           return;
         }
 
-        const student = getOrCreateStudent(els.name.value);
-        student.entries.push({
-          id: uid(),
-          category: rule.id,
-          categoryName: rule.name,
-          amount,
-          units,
-          date: els.date.value,
-        });
+        try {
+          state = await apiRequest("/api/entries", {
+            method: "POST",
+            body: JSON.stringify({
+              studentName: els.name.value,
+              category: rule.id,
+              categoryName: rule.name,
+              amount,
+              units,
+              date: els.date.value,
+            }),
+          });
+        } catch (error) {
+          showToast(error.message);
+          return;
+        }
 
-        saveState();
         render();
         els.form.reset();
         els.date.valueAsDate = new Date();
@@ -1156,7 +1167,7 @@
         });
       });
 
-      els.list.addEventListener("click", (event) => {
+      els.list.addEventListener("click", async (event) => {
         const historyButton = event.target.closest("[data-history]");
         const removeButton = event.target.closest("[data-remove]");
 
@@ -1167,12 +1178,12 @@
         if (removeButton) {
           const student = state.students.find((item) => item.id === removeButton.dataset.remove);
           if (student && confirm(`Remover ${student.name} e todos os registros?`)) {
-            state.students = state.students.filter((item) => item.id !== student.id);
-            state.students.forEach((item) => {
-              item.donationsIn = item.donationsIn.filter((donation) => donation.fromId !== student.id);
-              item.donationsOut = item.donationsOut.filter((donation) => donation.toId !== student.id);
-            });
-            saveState();
+            try {
+              state = await apiRequest(`/api/students/${student.id}`, { method: "DELETE" });
+            } catch (error) {
+              showToast(error.message);
+              return;
+            }
             render();
             showToast("Registro removido.");
           }
@@ -1228,7 +1239,7 @@
       document.querySelector("#cancelDonation").addEventListener("click", () => els.donationDialog.close());
       document.querySelector("#closeHistory").addEventListener("click", () => els.historyDialog.close());
 
-      els.donationForm.addEventListener("submit", (event) => {
+      els.donationForm.addEventListener("submit", async (event) => {
         event.preventDefault();
         const from = state.students.find((student) => student.id === els.fromStudent.value);
         const to = state.students.find((student) => student.id === els.toStudent.value);
@@ -1248,19 +1259,16 @@
           return;
         }
 
-        const donation = {
-          id: uid(),
-          fromId: from.id,
-          fromName: from.name,
-          toId: to.id,
-          toName: to.name,
-          units,
-          date: new Date().toISOString().slice(0, 10),
-        };
+        try {
+          state = await apiRequest("/api/donations", {
+            method: "POST",
+            body: JSON.stringify({ fromId: from.id, toId: to.id, units }),
+          });
+        } catch (error) {
+          showToast(error.message);
+          return;
+        }
 
-        from.donationsOut.push(donation);
-        to.donationsIn.push(donation);
-        saveState();
         els.donationDialog.close();
         render();
         showToast("Doacao registrada.");
@@ -1288,17 +1296,21 @@
         URL.revokeObjectURL(url);
       });
 
-      document.querySelector("#resetBtn").addEventListener("click", () => {
+      document.querySelector("#resetBtn").addEventListener("click", async () => {
         if (confirm("Limpar todos os registros da campanha?")) {
-          state.students = [];
-          saveState();
+          try {
+            state = await apiRequest("/api/reset", { method: "DELETE" });
+          } catch (error) {
+            showToast(error.message);
+            return;
+          }
           render();
           showToast("Dados limpos.");
         }
       });
 
       renderRules();
-      render();
+      refreshState().catch((error) => showToast(error.message));
     </script>
   </body>
 </html>
